@@ -1,0 +1,41 @@
+name: Multi-Timeframe Bottom Divergence Scanner
+
+on:
+  schedule:
+    - cron: '0 17,22 * * 1-5'
+  workflow_dispatch: 
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write 
+      
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          pip install yfinance pandas numpy requests
+
+      - name: Run Long Only Agent
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          python agent.py
+
+      - name: Save memory (Commit sent_signals.json)
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add sent_signals.json || true
+          git commit -m "auto: update sent signals memory" || true
+          git pull origin main --rebase || true
+          git push origin main
