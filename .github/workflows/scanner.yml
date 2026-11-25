@@ -11,6 +11,10 @@ jobs:
     
     permissions:
       contents: write 
+
+    defaults:
+      run:
+        working-directory: ./macd-main
       
     steps:
       - name: Checkout Code
@@ -38,4 +42,4 @@ jobs:
           git add sent_signals.json || true
           git commit -m "auto: update sent signals memory" || true
           git pull origin main --rebase || true
-          git push origin main
+          git push origin main || true
