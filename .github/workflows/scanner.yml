@@ -2,7 +2,10 @@ name: Multi-Timeframe Bottom Divergence Scanner
 
 on:
   schedule:
-    - cron: '0 17,22 * * 1-5'
+    # 对应北京时间：下午 16:00 (UTC 8)、晚上 22:00 (UTC 14)、凌晨 01:00 (UTC 17)、早上 05:00 (UTC 21)、早上 09:00 (UTC 1)
+    - cron: '0 8,14 * * 1-5'
+    - cron: '0 17,21 * * 1-5'
+    - cron: '0 1 * * 2-6'
   workflow_dispatch: 
 
 jobs:
