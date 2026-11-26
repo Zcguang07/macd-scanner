@@ -1,0 +1,54 @@
+name: Export Discord Member Notes & Images
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel_ids:
+        description: '要抓取的频道ID（多个频道用英文逗号隔开）'
+        required: true
+        default: '1307432516109598720'
+      user_keyword:
+        description: '目标成员的名字关键词或纯数字User ID（留空则导出该频道所有人）'
+        required: false
+        default: ''
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          pip install discord.py aiohttp
+
+      - name: Run Discord Exporter (Download Text + All Images)
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          TARGET_CHANNEL_IDS: ${{ inputs.channel_ids }}
+          TARGET_USER_KEYWORD: ${{ inputs.user_keyword }}
+        run: |
+          if [ -f "export_discord_member.py" ]; then
+            python export_discord_member.py
+          elif [ -f "macd-main/export_discord_member.py" ]; then
+            python macd-main/export_discord_member.py
+          else
+            echo "未找到 export_discord_member.py，请确认已上传至仓库！"
+            exit 1
+          fi
+
+      - name: Package Notes & Images as Downloadable ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: discord-teacher-notes-with-images
+          path: |
+            exported_discord_notes/**
+            macd-main/exported_discord_notes/**
+          retention-days: 30
